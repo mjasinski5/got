@@ -178,7 +178,7 @@ function asPromise(opts) {
 					}
 
 					if (statusCode !== 304 && (statusCode < 200 || statusCode > limitStatusCode)) {
-						throw new got.HTTPError(statusCode, res.headers, opts);
+						throw new got.HTTPError(statusCode, res.headers, opts, res.body);
 					}
 
 					resolve(res);
@@ -388,6 +388,7 @@ function normalizeArguments(url, opts) {
 }
 
 function got(url, opts) {
+
 	try {
 		return asPromise(normalizeArguments(url, opts));
 	} catch (err) {
@@ -458,13 +459,14 @@ got.ParseError = class extends StdError {
 };
 
 got.HTTPError = class extends StdError {
-	constructor(statusCode, headers, opts) {
+	constructor(statusCode, headers, opts, body) {
 		const statusMessage = http.STATUS_CODES[statusCode];
 		super(`Response code ${statusCode} (${statusMessage})`, {}, opts);
 		this.name = 'HTTPError';
 		this.statusCode = statusCode;
 		this.statusMessage = statusMessage;
 		this.headers = headers;
+		this.body = body;
 	}
 };
 
